@@ -1,6 +1,10 @@
 # generate_expense_document
 Given a gmail account get the attachements from all identified emails and put them together in a single file.
 
+Warning: can compromise the security of your google account...
+
+Save google account data in some kind of thing that is not comitted or saved in plain text...
+
 1. Emails with images of receipts are sent to an address
 2. The company that will be billed for the expense should be included in the subject line
 3. The text content of the email should be a description of the expense
@@ -19,3 +23,6 @@ Optional inputs:
   Outputs:
    doc_title.tex - latex document with header including info and personal company info
                  - Info on date payable and payment info 
+
+Requirements:
+pip install imbox
