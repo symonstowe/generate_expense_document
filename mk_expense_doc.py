@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import os.path
 import base64
+import time
 import datetime
 from pathlib import Path
 
@@ -70,7 +71,7 @@ def latex_output(doc_setup,dates,captions,imgs):
     with open('tex_template.tex', 'r') as file :
         filedata = file.read()
 
-    # Replace the target string
+    # Replace the target strings
     filedata = filedata.replace('@EXPENSE_SUMMARY', summary_table)
     filedata = filedata.replace('@COMPANY_ADDRESS', doc_setup.company)
     filedata = filedata.replace('@COMPANY', doc_setup.company_full)
@@ -80,7 +81,12 @@ def latex_output(doc_setup,dates,captions,imgs):
     filedata = filedata.replace('@FILE_ID', doc_setup.doc_ID)
     filedata = filedata.replace('@DATE', str(datetime.date.today()))
     filedata = filedata.replace('@IMG_LOC', doc_setup.im_path)
-    filedata = filedata.replace('@LOGO_LOC', '/imgs/')
+    filedata = filedata.replace('@LOGO_LOC', './personal_imgs/')
+
+    for date in dates: # For each email arrival date put all the images in 
+        day = time.strftime('%Y-%m-%d', time.localtime(int(date)/1000)).date()
+        # TODO - finish this later
+        breakpoint()
 
     fname = doc_setup.base_path + "/" + str(doc_setup.start_date) + "--" + str(doc_setup.end_date) + ".tex"
     with open(fname, 'w') as file:
