@@ -1,0 +1,141 @@
+\documentclass[a4paper,12pt]{article}
+\def\FILE{@FILE_ID}
+\def\DATE{@DATE}
+\usepackage[margin=2cm,includeheadfoot]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{fp}
+\usepackage{longtable}
+\newcommand{\EXP}[1]{\FPadd\TOTAL{\TOTAL}{#1}%
+   \global\let\TOTAL\TOTAL
+   #1}
+\usepackage[utf8]{inputenc}
+\usepackage{helvet,epsfig,color}
+\usepackage{newtxtext}
+\usepackage{url}
+\usepackage{enumitem}
+   \makeatletter
+   \DeclareRobustCommand*{\UScore}[1]{%
+     \begingroup\@activeus\scantokens{#1\endinput}\endgroup}
+   \begingroup\lccode`\~=`\_\relax
+      \lowercase{\endgroup\def\@activeus{\catcode`\_=\active \let~\_}}
+   \makeatother
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+\graphicspath{{@IMG_LOC, @LOGO_LOC}}
+\usepackage{xfrac}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+
+\headheight = 2.8cm
+\lhead{\begin{picture}(0,0) \put(0,0){\includegraphics[width=2.5cm]{logo-light.pdf}} \end{picture}}
+\chead{\vspace{-8mm}{\fontsize{20}{20}\selectfont \hspace{1.4em}EXPENSE CLAIM} {\huge \#} {\large \FILE}
+\vspace{4mm}}
+\rhead{p.\thepage/\pageref{LastPage}}
+
+\usepackage{fancyvrb}
+\usepackage{verbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\FPset\TOTAL{0}
+
+\vspace*{0mm} % why why why does this fix the issue?!?!?
+
+\noindent
+\begin{tabular}{@{}lp{15cm}}
+To: & 
+@COMPANY 
+\newline
+@COMPANY_ADDRESS
+ \\
+Date: &
+\DATE
+ \\
+File \#:
+& \FILE
+ \\
+Subject: &
+Expense claim for @DATE_RANGE
+\end{tabular}\\
+
+\hspace{0mm}
+
+\setlength{\parskip}{0.5\baselineskip}%
+
+\noindent
+
+This document an expense claim for expenses from 
+\textbf{@USER_NAME}
+incurred working for
+\textbf{@COMPANY}
+during the period of 
+\textbf{@DATE_RANGE}.
+Page 1 presents a summary of expenses, subsequent pages contain the relevant receipts. 
+
+\hspace{5mm}
+
+\begin{tabular}{lp{11cm}r}
+{\em Item} & \multicolumn{1}{c}{\em Details} & {\em Amount} 
+\\ \hline
+@EXPENSE_SUMMARY
+\hline
+\multicolumn{2}{l}{\textbf{Total due:}} & \$\,XX.xx
+\end{tabular}\\
+
+~\\
+\vspace{-3mm}
+\begin{quote}
+@USER_NAME \\
+@USER_EMAIL
+\end{quote}
+
+Sincerely, \\
+
+      \includegraphics[width=4cm,height=2cm]{signature.pdf}
+\\
+\indent
+@USER_NAME\\
+
+\newpage
+
+The following table provides a breakdown report of the
+performed Services and time devoted to the Services,
+during the period.
+
+\begin{center}
+\begin{longtable}{lp{11cm}r}
+{\em Date} & \multicolumn{1}{c}{\em Details} & {\em Hours} 
+\\ \hline
+
+Oct 19 & Weekly Tidal internal meeting. \newline Weekly Tidal Engineering meeting. & \EXP{2.0} \\
+Oct 21 & Discussion with Martin, Andy and Austin to try and debug the Sciospec issues. Confirm why there are differences between the measurement patterns in simulation and recordings. & \EXP{2.0} \\
+Oct 26 & Weekly Tidal internal meeting. \newline Recording new data with the system, debugging issues with the data recording. Identified that the system  has a loose connection and requires joggling of the connection to obtain good measurements. Also identified the system is recording single ended measurements even when difference measurements are selected.  & \EXP{7.0} \\
+Oct 27 & Discussion with Martin - updated the software and firmware for the Sciospec device and achieved better measurements. \newline Recording new EIT data with difference measurements. \newline Weekly Algorithms call with Austin and Ben. \newline Reconstructing EIT measurements with the Sciospec system on a Tank model with different skip patterns. & \EXP{6.0} \\
+Nov 1 & Two weekly meetings (issues with measurement quality on humans). \newline Assessing optimal measurement settings to reduce noise on collected human measurements. & \EXP{7.0} \\
+Nov 2 & Meeting with Martin to discuss measurement noise reduction strategies (biasing). & \EXP{1.0} \\
+Nov 3 & Weekly Algorithms call with Ben and Austin. \newline Recordings with different shunt techniques and soldering connections. & \EXP{6.0} \\
+Nov 4 & Time-based and frequency based analysis of measurements with different bias techniques. \newline Calls with Andy and Austin to discuss the biasing and work on the patent application. & \EXP{4.0} \\
+Nov 5 & Trials with different measurement modes and different biasing strategies with soldering to the new pin. \newline Call with Andy to discuss biasing. & \EXP{5.0} \\
+Nov 7 & Going through individual measurements to isolate the source of the noise - found to be injecting and adjacent measurement electrodes. & \EXP{3.0} \\
+Nov 8 & Reconstructing images of the measurements with removed measurements. \newline Weekly meetings and discussions. \newline Work on patent application. \newline Automating analysis to generate measurements faster once electrodes arrive. & \EXP{8.5} \\
+Nov 9 & Continuing automating the measurement generation  and noise removal. \newline
+Investor Demo Meeting. \newline
+Human measurements. \newline
+Debugging issue with sciospec system settings. & \EXP{6.0} \\
+Nov 10 & Meeting with Andy and Herve to look at potential demo software. & \EXP{1.5} \\
+Nov 11 & Recordings with electrode contact issues and different stimulation patterns for electrode contact detection. \newline Meeting with Tarek to hand off system and review interfacing methods. & \EXP{3.0} \\
+  
+          & \textbf{\em Total}
+       & \textbf{\FPround\TOTAL{\TOTAL}{1}\FPprint{\TOTAL}}
+\end{longtable}
+\end{center}
+
+
+
+
+\label{LastPage}
+\end{document}
