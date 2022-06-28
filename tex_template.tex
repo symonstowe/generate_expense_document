@@ -22,11 +22,14 @@
 \usepackage{listings}
 \usepackage{color}
 \usepackage{graphicx}
-\graphicspath{{@IMG_LOC, @LOGO_LOC}}
+%\graphicspath{{@IMG_LOC} {@LOGO_LOC}}
+\graphicspath{{imgs/} {../../../personal_imgs/}}
 \usepackage{xfrac}
+\usepackage[section]{placeins}
 
 \usepackage{fancyhdr}
 \pagestyle{fancy}
+\usepackage{lastpage}
 \fancyhf{}
 
 \headheight = 2.8cm
@@ -79,7 +82,7 @@ Page 1 presents a summary of expenses, subsequent pages contain the relevant rec
 \hspace{5mm}
 
 \begin{tabular}{lp{11cm}r}
-{\em Item} & \multicolumn{1}{c}{\em Details} & {\em Amount} 
+{\em Date} & \multicolumn{1}{c}{\em Details} & {\em Amount} 
 \\ \hline
 @EXPENSE_SUMMARY
 \hline
@@ -102,11 +105,9 @@ Sincerely, \\
 
 \newpage
 
-The following sections provide a breakdown report of the
-performed Services and time devoted to the Services,
-during the period.
+The following section includes relevant receipts and/or statements 
+for the included expense claims during the period.
 
 @RECEIPTS
 
-\label{LastPage}
 \end{document}

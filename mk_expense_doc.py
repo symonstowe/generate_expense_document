@@ -4,7 +4,10 @@ import os.path
 import base64
 import time
 import datetime
+import numpy as np
 from pathlib import Path
+from sys import platform
+import subprocess
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -61,14 +64,28 @@ def save_data_from_part(part,msg,service,doc_setup):
     path = doc_setup.im_path + path
     return  path
 
+def sort_by_date(dates,captions,imgs):
+    # Sort everything that we are interested in printing to the tex document by date
+    idx = np.argsort(dates)
+    dates = [dates[i] for i in idx]
+    captions = [captions[i] for i in idx]
+    imgs = [imgs[i] for i in idx]
+    return dates, captions, imgs 
+
 def latex_output(doc_setup,dates,captions,imgs):
     i=0
     summary_table = ""
-    for caption in captions:
-        summary_table+= "Expense " + str(i+1) + " & " + caption + " & \$\,XX.xx \\\ "
-        i+=1
+    # TODO - parse the email to get the amounts and sum them from the email
+    dates, captions, imgs = sort_by_date(dates, captions, imgs)
+    days = [time.strftime('%Y-%m-%d', time.localtime(int(date)/1000)) for date in dates]
+    for i, caption in enumerate(captions):
+        summary_table += days[i] + " & " + caption + " & \$\,XX.xx \\\ "
+
+    # TODO add a sum to the table!
+    # If dollar sign in email do.... else print the Xs (gross)
+    # TODO - add href to the corresponding receipt....
     
-    with open('tex_template.tex', 'r') as file :
+    with open('tex_template.tex', 'r') as file:
         filedata = file.read()
 
     # Replace the target strings
@@ -80,21 +97,64 @@ def latex_output(doc_setup,dates,captions,imgs):
     filedata = filedata.replace('@DATE_RANGE', str(doc_setup.start_date) + " - " + str(doc_setup.end_date))
     filedata = filedata.replace('@FILE_ID', doc_setup.doc_ID)
     filedata = filedata.replace('@DATE', str(datetime.date.today()))
-    filedata = filedata.replace('@IMG_LOC', doc_setup.im_path)
-    filedata = filedata.replace('@LOGO_LOC', './personal_imgs/')
+    filedata = filedata.replace('@IMG_LOC', doc_setup.im_path[2:])
+    filedata = filedata.replace('@LOGO_LOC', 'personal_imgs/')
 
-    for date in dates: # For each email arrival date put all the images in 
-        day = time.strftime('%Y-%m-%d', time.localtime(int(date)/1000)).date()
-        # TODO - finish this later
-        breakpoint()
+    receipt_section = ""
+    img_c = 0
+    for i, date in enumerate(dates): # For each email arrival date put all the images in 
+        day = time.strftime('%Y-%m-%d', time.localtime(int(date)/1000))
+        longform_day = time.strftime('%B %d %Y', time.localtime(int(date)/1000))
+        receipt_section += "\section*{" + longform_day + "} \n"
+        atchd_imgs = imgs[i]
+        for img in atchd_imgs:
+            img_c += 1
+            # Pull in the image template
+            with open('img_template.tex', 'r') as file:
+                img_tex = file.read()
+            img_tex = img_tex.replace('@IMG_NAME', img.split('/')[-1])
+            img_tex = img_tex.replace('@EXPENSE_INFO', captions[i])
+            receipt_section += img_tex + "\n"
+            if img_c%2 == 0:
+                receipt_section += "\\newpage \n"
+                
+    filedata = filedata.replace('@RECEIPTS', receipt_section)
 
     fname = doc_setup.base_path + "/" + str(doc_setup.start_date) + "--" + str(doc_setup.end_date) + ".tex"
-    with open(fname, 'w') as file:
-        file.write(filedata)
-
+    doc_setup.fname = fname.split('/')[-1]
+    if os.path.isfile(fname):
+        overwrite = input('File for this date range already exists... Overwrite? \ny = yes, \nn = no \nr = recompile pdf but keep tex\n')
+        if overwrite.lower() == 'y':
+            with open(fname, 'w') as file:
+                file.write(filedata)
+        elif overwrite.lower() == 'r':
+            mk_pdf_from_tex(doc_setup)
+        else:
+            raise ValueError('File exists - not overwriting.')
+    else:
+        with open(fname, 'w') as file:
+            file.write(filedata)
+    return doc_setup
     
-    breakpoint()
+def mk_pdf_from_tex(doc_setup):
+    if platform == "linux" or platform == "linux2":
+        # linux
+        try: # Run twice for the page numbering...
+            bashCommand = "lualatex " + doc_setup.fname
+            process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE,cwd=doc_setup.base_path)
+            output, error = process.communicate()
+            process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE,cwd=doc_setup.base_path)
+            output, error = process.communicate()
+        except ValueError:
+            print("Bash command did not work.")
 
+    elif platform == "darwin":
+        # OS X
+        raise ValueError("No Tex compilation set up for Mac - you must compile manualy.")
+
+    elif platform == "win32":
+        # Windows...
+        raise ValueError("No Tex compilation set up for Windows - you must compile manualy.")
 
 
 if __name__ == '__main__':
@@ -133,7 +193,7 @@ if __name__ == '__main__':
             attch_pths[c] = img_pths
             c+=1
         latex_output(doc_setup,t_rec,content,attch_pths)
-        breakpoint()
+        mk_pdf_from_tex(doc_setup)
 
     except HttpError as error:
         # TODO(developer) - Handle errors from gmail API.
