@@ -68,8 +68,8 @@ def load_rows(folder):
                         path = (folder / row[key]).resolve()
                         if not path.is_relative_to(folder.resolve()) or not path.is_file():
                             raise ValueError(f'{key} must be an existing file inside the trip folder')
-                        if path.suffix.lower() not in {'.pdf', '.png', '.jpg', '.jpeg', '.webp'}:
-                            raise ValueError(f'{key}: use PDF, PNG, JPG or WebP evidence')
+                        if path.suffix.lower() not in {'.pdf', '.png', '.jpg', '.jpeg', '.webp', '.txt'}:
+                            raise ValueError(f'{key}: use PDF, PNG, JPG, WebP or plain text evidence')
                 rows.append(row)
             except ValueError as error:
                 raise ValueError(f'CSV row {line}: {error}') from None
@@ -119,8 +119,8 @@ def generate(folder, output):
         raise ValueError('trip_evidence_files must be a list of file paths')
     for name in extras:
         path = (folder / name).resolve()
-        if not path.is_relative_to(folder.resolve()) or not path.is_file() or path.suffix.lower() not in {'.pdf', '.png', '.jpg', '.jpeg', '.webp'}:
-            raise ValueError('Trip evidence must be PDF or image files inside the trip folder')
+        if not path.is_relative_to(folder.resolve()) or not path.is_file() or path.suffix.lower() not in {'.pdf', '.png', '.jpg', '.jpeg', '.webp', '.txt'}:
+            raise ValueError('Trip evidence must be PDF, image or plain text files inside the trip folder')
         files[name] = path
     output = output.resolve()
     # Keep generated material separate from all source records.
