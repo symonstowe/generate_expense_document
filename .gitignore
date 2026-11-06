@@ -1,4 +1,11 @@
 *.swp
-*.pdf
-*.json
-*.svg
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+/token.json
+/credentials.json
+/trips/
+/output/
+/expense_documents/
+/personal_imgs/
